@@ -46,40 +46,20 @@ INT8U timer1_key_data_low[]={
 
 
 INT8U note_key[] = {
-	56,	59,
-	54,	52,
-	54,	56,
-	59,	54,
-	0,	56,
-	59,	66,
-	64,	59,
-	57,	56,
-	54,	0,
-	56,	59,
-	54,	52,
-	54,	56,
-	59,	54,
-	0,	56,
-	59,	66,
-	64,	71,
-	0,	71,
-	69,	68,
-	69,	68,
-	64,	69,
-	68,	66,
-	68,	66,
-	59,	0,
-	71,	69,
-	68,	69,
-	68,	64,
-	69,	73,
+	56,	59,	54,	52,	54,	56,	59,	54,
+	0,	56,	59,	66,	64,	59,	57,	56,
+	54,	 0,	56,	59,	54,	52,	54,	56,
+	59,	54,	0,	56,	59,	66,	64,	71,
+	 0,	71,	69,	68,	69,	68,	64,	69,
+	68,	66,	68,	66,	59,	 0,	71,	69,
+	68,	69,	68,	64,	69,	73,
 };
 
 INT8U note_size[] = {
 	4,	2,	4,	1,	1,	4,	2,	4,
 	2,	4,	2,	4,	2,	4,	1,	1,
 	4,	2,	4,	2,	4,	1,	1,	4,
-	2,	4,	2,	4,	2,	4,	2,	10,
+	2,	4,	2,	4,	2,	4,	2, 10,
 	2,	4,	1,	1,	1,	1,	4,	4,
 	1,	1,	1,	1,	2,	2,	4,	1,
 	1,	1,	1,	2,	2,	12
@@ -150,19 +130,22 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 
 
 
-void  LedTask(void *data);
+void LedTask(void *data);
+void FNDTask (void* data);
+void MusicTask (void* data);
 
 
 int main (void)
 {
-  OSInit();
+	register int a;
+  	OSInit();
 
-  OS_ENTER_CRITICAL();
-  TCCR0=0x07;  
-  TIMSK=_BV(TOIE0);                  
-  TCNT0=256-(CPU_CLOCK_HZ/OS_TICKS_PER_SEC/ 1024);   
+  	OS_ENTER_CRITICAL();
+  	TCCR0=0x07;  
+  	TIMSK=_BV(TOIE0);                  
+  	TCNT0=256-(CPU_CLOCK_HZ/OS_TICKS_PER_SEC/ 1024);   
 
-  DDRB = 0x10; //버저 출력 PB4
+  	DDRB = 0x10; //버저 출력 PB4
 	TCCR2 = 0x04;//0b00000100 64분주
 	TCNT2 = 125;
 	TCCR1A = 0x00;
@@ -171,19 +154,33 @@ int main (void)
 	TCNT1L = timer1_key_data_low[note_key[beat]+1];
 	
 	TIMSK |= 0x44;//0b0100 0100
-  OS_EXIT_CRITICAL();
+  	OS_EXIT_CRITICAL();
   
-  OSTaskCreate(LedTask, (void *)0, (void *)&LedTaskStk[TASK_STK_SIZE - 1], 0);
+  	OSTaskCreate(LedTask, (void *)0, (void *)&LedTaskStk[TASK_STK_SIZE - 1], 0);
+	OSTaskCreate(MusicTask,(void*)0, (void *)&LedTaskStk[TASK_STK_SIZE - 1], 1);
+	OSTaskCreate(FNDTask,(void*)0, (void *)&LedTaskStk[TASK_STK_SIZE - 1], 2);
+	OSTaskCreate(mainTask,(void*)0, (void *)&LedTaskStk[TASK_STK_SIZE - 1], 3);
 
-  OSStart();                         
+  	OSStart();                         
   
-  return 0;
+  	return 0;
+}
+void mainTask (void* data)
+{
+	data = data;
 }
 
-
+void MusicTask (void* data)
+{
+	data = data;
+}
+void FNDTask (void* data)
+{
+	data = data;
+}
 void LedTask (void *data)
 {
-  data = data;    
-  // LED Task
+  	data = data;    
+  	// LED Task
 
 }
