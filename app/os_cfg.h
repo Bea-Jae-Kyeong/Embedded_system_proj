@@ -60,7 +60,7 @@
 
 
                                        /* ----------------------- EVENT FLAGS ------------------------ */
-#define OS_FLAG_EN                0    /* Enable (1) or Disable (0) code generation for EVENT FLAGS    */
+#define OS_FLAG_EN                1    /* Enable (1) or Disable (0) code generation for EVENT FLAGS    */
 #define OS_FLAG_WAIT_CLR_EN       0    /* Include code for Wait on Clear EVENT FLAGS                   */
 #define OS_FLAG_ACCEPT_EN         0    /*     Include code for OSFlagAccept()                          */
 #define OS_FLAG_DEL_EN            0    /*     Include code for OSFlagDel()                             */
@@ -69,7 +69,7 @@
 
 
                                        /* -------------------- MESSAGE MAILBOXES --------------------- */
-#define OS_MBOX_EN                0    /* Enable (1) or Disable (0) code generation for MAILBOXES      */
+#define OS_MBOX_EN                1    /* Enable (1) or Disable (0) code generation for MAILBOXES      */
 #define OS_MBOX_ACCEPT_EN         0    /*     Include code for OSMboxAccept()                          */
 #define OS_MBOX_DEL_EN            0    /*     Include code for OSMboxDel()                             */
 #define OS_MBOX_POST_EN           0    /*     Include code for OSMboxPost()                            */
@@ -84,14 +84,14 @@
 
 
                                        /* ---------------- MUTUAL EXCLUSION SEMAPHORES --------------- */
-#define OS_MUTEX_EN               0    /* Enable (1) or Disable (0) code generation for MUTEX          */
+#define OS_MUTEX_EN               1    /* Enable (1) or Disable (0) code generation for MUTEX          */
 #define OS_MUTEX_ACCEPT_EN        0    /*     Include code for OSMutexAccept()                         */
 #define OS_MUTEX_DEL_EN           0    /*     Include code for OSMutexDel()                            */
 #define OS_MUTEX_QUERY_EN         0    /*     Include code for OSMutexQuery()                          */
 
 
                                        /* ---------------------- MESSAGE QUEUES ---------------------- */
-#define OS_Q_EN                   0    /* Enable (1) or Disable (0) code generation for QUEUES         */
+#define OS_Q_EN                   1    /* Enable (1) or Disable (0) code generation for QUEUES         */
 #define OS_Q_ACCEPT_EN            0    /*     Include code for OSQAccept()                             */
 #define OS_Q_DEL_EN               0    /*     Include code for OSQDel()                                */
 #define OS_Q_FLUSH_EN             0    /*     Include code for OSQFlush()                              */
