@@ -1,7 +1,10 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 
-
+const unsigned char play[] = { 0x73, 0x38, 0x77, 0x6e };
+const unsigned char stop[] = { 0x6d, 0x78, 0x3f, 0x73 };
+const unsigned char no[] = { 0x37, 0x3f };
+const unsigned char digit[] = { 0x3f,0x06,0x5b,0x4f };
 
 const unsigned char timer1_key_data_high[] PROGMEM = {
 	  0,														//NoSound  //0
