@@ -6,6 +6,7 @@ const unsigned char stop[] = { 0x6d, 0x78, 0x3f, 0x73 };
 const unsigned char no[] = { 0x37, 0x3f };
 const unsigned char digit[] = { 0x3f,0x06,0x5b,0x4f };
 
+const unsigned char fnd_sel[] = { 0x01,0x02,0x04,0x08 };
 const unsigned char timer1_key_data_high[] PROGMEM = {
 	  0,														//NoSound  //0
 //   C    C#   D    D#   E    F    F#   G    G#   A    A#   B
