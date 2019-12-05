@@ -56,8 +56,8 @@ OPT = 2
 # UCOSDIR = $(wildcard ~/ucos-II/software/uCOS-II/Source)
 # PORTDIR = $(wildcard ~/Micrium/Software/uCOS-II/Ports/AVR/ATmega128/GNU/jlu)
 # With Windows, use something like the next lines
-UCOSDIR = c:/WinAVR-work/lab1/source
-PORTDIR = c:/WinAVR-work/lab1/ports
+UCOSDIR = c:/WinAVR-RTOS/avr_rtos_orgel_project/source
+PORTDIR = c:/WinAVR-RTOS/avr_rtos_orgel_project/ports
 
 INCDIR1	= $(UCOSDIR)
 INCDIR2	= $(PORTDIR)
