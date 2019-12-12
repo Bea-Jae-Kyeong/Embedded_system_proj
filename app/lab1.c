@@ -204,6 +204,7 @@ void MusicTask (void* data)
 {
 	INT8U err;
 	data = data;
+	INT8U TrackNumber;
 
 	OSSemPend(MusicSem, 0, &err);
 		isPlaying = FALSE;
