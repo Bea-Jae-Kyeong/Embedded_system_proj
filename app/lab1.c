@@ -22,8 +22,7 @@ volatile int notes=0;
 volatile INT8U playButton_Press;
 volatile INT8U nextButton_Press;
 volatile INT8U isPlaying;
-volatile int count =0;
-volatile int m = 0, cnt=0, num=0; //m=
+volatile INT8U TrackNumber = 1;
 
 INT8U default_BPM; //48 for harry potter, 120 for zelda, 
 
@@ -72,6 +71,10 @@ ISR(INT4_vect)
 ISR(INT5_vect)
 {
 	nextButton_Press = TRUE;
+	TrackNumber++;
+	if(TrackNumber>4){
+		TrackNumber=1;
+	}
 	_delay_ms(30);
 }
 
@@ -150,7 +153,7 @@ void display_FND(int count)
 	else if(count==3){
 		for(i=0; i<4; i++) {
 			if(i==0){
-				PORTC = digit[num+1];
+				PORTC = digit[TrackNumber];
 				PORTG = fnd_sel[i];
  
 				_delay_ms(2.5);
@@ -204,7 +207,6 @@ void MusicTask (void* data)
 {
 	INT8U err;
 	data = data;
-	INT8U TrackNumber;
 
 	OSSemPend(MusicSem, 0, &err);
 		isPlaying = FALSE;
