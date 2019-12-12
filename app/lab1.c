@@ -21,6 +21,8 @@ volatile INT8U state;
 volatile int notes=0;
 volatile INT8U playButton_Press;
 volatile INT8U isPlaying;
+volatile int count =0;
+volatile int m = 0, cnt=0, num=0;
 
 INT8U default_BPM; //48 for harry potter, 120 for zelda, 
 
@@ -62,19 +64,25 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 //재생버튼을 누르는 경우
 ISR(INT4_vect)
 {
+if(cnt%2==1)m=1;
+else m=0;
+cnt++;
 
 }
 //다음곡 버튼을 누르는 경우
 ISR(INT5_vect)
 {
-
+m = 3;
+num++;
+if(num>3)
+num=0;
 }
 
 void LedTask(void *data);
 void FNDTask (void* data);
 void MusicTask (void* data);
 void MainTask (void* data);
-
+void display_FND(int count);
 
 int main (void)
 {
@@ -88,6 +96,13 @@ int main (void)
   	TCNT0=256-(CPU_CLOCK_HZ/OS_TICKS_PER_SEC/ 1024);   
 
   	DDRB = 0x10; //버저 출력 PB4
+	DDRA = 0xff; 
+DDRC = 0xff; 
+DDRG = 0x0f;  
+DDRE = 0xcf;
+EICRB = 0x0A;
+EIMSK = 0x30; 
+SREG |= 1<<7; 
 	TCCR2 = 0x04;//0b00000100 64분주
 	TCNT2 = 125;
 	TCCR1A = 0x00;
@@ -112,11 +127,52 @@ int main (void)
 	
 
   	OSStart();                         
-  
+
   	return 0;
 }
-void display_FND()
-{
+void display_FND(int count)
+{ 
+int i, fnd[4];
+if(count==1){  
+for(i=0; i<4; i++) { 
+PORTC = stop[i];
+ PORTG = fnd_sel[i];
+ 
+_delay_ms(2.5);
+ }
+}
+else if(count==0){
+    for(i=0; i<4; i++) { 
+PORTC = play[i];
+ PORTG = fnd_sel[i];
+ 
+_delay_ms(2.5);
+ }
+}
+ else if(count==3){
+     for(i=0; i<4; i++) {
+          if(i==0){
+PORTC = digit[num+1];
+ PORTG = fnd_sel[i];
+ 
+_delay_ms(2.5);
+          }
+          else if(i==1){
+
+PORTC = digit[0];
+ PORTG = fnd_sel[i];
+ 
+_delay_ms(2.5);
+}
+else {
+PORTC = no[i-2];
+ PORTG = fnd_sel[i];
+ 
+_delay_ms(2.5);
+          }
+		  
+ }
+ }
 
 }
 
@@ -147,7 +203,19 @@ void FNDTask (void* data)
 {
 	INT8U err;
 	data = data;
-	display_FND();
+	 while(1) {     
+if(m==1){ 
+display_FND(1); 
+} 
+else if(m==0){ 
+ display_FND(0);
+ }
+ else if(m==3){
+
+ display_FND(3);
+ }
+
+  }
 
 }
 
@@ -172,3 +240,4 @@ void LedTask (void *data)
 	PORTA |= progress;
 
 }
+
