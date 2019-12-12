@@ -20,9 +20,10 @@ volatile INT8U beat = 0;
 volatile INT8U state;
 volatile int notes=0;
 volatile INT8U playButton_Press;
+volatile INT8U nextButton_Press;
 volatile INT8U isPlaying;
 volatile int count =0;
-volatile int m = 0, cnt=0, num=0;
+volatile int m = 0, cnt=0, num=0; //m=
 
 INT8U default_BPM; //48 for harry potter, 120 for zelda, 
 
@@ -47,7 +48,7 @@ ISR(TIMER1_OVF_vect)
 ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 {                  
 	count++;
-	if(count==120) //0.0625초 ->1/16초 ==> 16분음마다 이 카운터가 돌아감
+	if(count==125) //0.0625초 ->1/16초 ==> 16분음마다 이 카운터가 돌아감
 	{
 		count = 0;
 		beat++;
@@ -64,18 +65,14 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 //재생버튼을 누르는 경우
 ISR(INT4_vect)
 {
-if(cnt%2==1)m=1;
-else m=0;
-cnt++;
-
+	playButton_Press = TRUE;
+	_delay_ms(30);
 }
 //다음곡 버튼을 누르는 경우
 ISR(INT5_vect)
 {
-m = 3;
-num++;
-if(num>3)
-num=0;
+	nextButton_Press = TRUE;
+	_delay_ms(30);
 }
 
 void LedTask(void *data);
@@ -94,25 +91,26 @@ int main (void)
   	TCCR0=0x07;  
   	TIMSK=_BV(TOIE0);                  
   	TCNT0=256-(CPU_CLOCK_HZ/OS_TICKS_PER_SEC/ 1024);   
-
-  	DDRB = 0x10; //버저 출력 PB4
-	DDRA = 0xff; 
-DDRC = 0xff; 
-DDRG = 0x0f;  
-DDRE = 0xcf;
-EICRB = 0x0A;
-EIMSK = 0x30; 
-SREG |= 1<<7; 
-	TCCR2 = 0x04;//0b00000100 64분주
-	TCNT2 = 125;
+	DDRA = 0xff; //LED 출력 설정
+  	DDRB = 0x10; //버저 출력(PB4) 설정
+	DDRC = 0xff; //FND Data 출력 설정
+	DDRG = 0x0f; //FND Select 출력 설정
+	DDRE = 0xcf; //PE4,PE5 입력 설정(button press)
+	EICRB = 0x0A; //INT4, INT5 falling edge 인터럽트 설정
+	EIMSK = 0x30; //INT4, INT5 외부 인터럽트 Enable
+	TCCR2 = 0x04; //0b00000100 64분주
+	TCNT2 = 125;  //0.5ms 단위 overflow interrupt
 	TCCR1A = 0x00;
 	TCCR1B = 0x02;//0b00000010 8분주
 	TCNT1H = timer1_key_data_high[track1_note_key[beat]+1];
 	TCNT1L = timer1_key_data_low[track1_note_key[beat]+1];
 	
-	TIMSK |= 0x44;//0b0100 0100
+	TIMSK |= 0x44;//0b0100 0100	
+	SREG |= 1<<7; //전역 인터럽트 Enable 설정
   	OS_EXIT_CRITICAL();
-	
+	playButton_Press = FALSE;
+	isPlaying = FALSE;
+
 	
 	MusicSem = OSSemCreate(1);
 	PlayMbox = OSMboxCreate(NULL);
@@ -132,47 +130,47 @@ SREG |= 1<<7;
 }
 void display_FND(int count)
 { 
-int i, fnd[4];
-if(count==1){  
-for(i=0; i<4; i++) { 
-PORTC = stop[i];
- PORTG = fnd_sel[i];
- 
-_delay_ms(2.5);
- }
-}
-else if(count==0){
-    for(i=0; i<4; i++) { 
-PORTC = play[i];
- PORTG = fnd_sel[i];
- 
-_delay_ms(2.5);
- }
-}
- else if(count==3){
-     for(i=0; i<4; i++) {
-          if(i==0){
-PORTC = digit[num+1];
- PORTG = fnd_sel[i];
- 
-_delay_ms(2.5);
-          }
-          else if(i==1){
+	int i, fnd[4];
+	if(count==1){  
+		for(i=0; i<4; i++) { 
+			PORTC = stop[i];
+			PORTG = fnd_sel[i];
+			_delay_ms(2.5);
+		}
+	}
+	else if(count==0){
 
-PORTC = digit[0];
- PORTG = fnd_sel[i];
+		for(i=0; i<4; i++) { 
+			PORTC = play[i];
+			PORTG = fnd_sel[i];
  
-_delay_ms(2.5);
-}
-else {
-PORTC = no[i-2];
- PORTG = fnd_sel[i];
+			_delay_ms(2.5);
+		}
+	}
+	else if(count==3){
+		for(i=0; i<4; i++) {
+			if(i==0){
+				PORTC = digit[num+1];
+				PORTG = fnd_sel[i];
  
-_delay_ms(2.5);
-          }
+				_delay_ms(2.5);
+			}
+			else if(i==1){
+
+				PORTC = digit[0];
+				PORTG = fnd_sel[i];
+ 
+				_delay_ms(2.5);
+			}
+			else {
+				PORTC = no[i-2];
+				PORTG = fnd_sel[i];
+ 
+				_delay_ms(2.5);
+			}
 		  
- }
- }
+		}
+	}
 
 }
 
@@ -180,15 +178,25 @@ _delay_ms(2.5);
 void MainTask (void* data)
 {
 	data = data;
-	if(playButton_Press)
+	
+	while (TRUE)
 	{
-		if(isPlaying == TRUE)
-			OSMboxPost(FNDMbox,'p');//play ping
-		else
-			OSMboxPost(FNDMbox,'P');//pause ping
-		playButton_Press = FALSE;
+		if (playButton_Press)
+		{	
+			playButton_Press = FALSE;
+
+			if (isPlaying == TRUE)
+				OSMboxPost(FNDMbox, &('P'));//play ping
+			else
+				OSMboxPost(FNDMbox, &('S'));//pause ping
+		}
+		if (nextButton_Press)
+		{
+			nextButton_Press = FALSE;
+			OSMboxPost(FNDMbox, &('N'));
+		}
+		OSTimeDly(3);
 	}
-		
 
 }
 
@@ -197,25 +205,36 @@ void MusicTask (void* data)
 	INT8U err;
 	data = data;
 
+	OSSemPend(MusicSem, 0, &err);
+		isPlaying = FALSE;
+	OSSemPost(MusicSem);
+
+
 	OSFlagPost(ProgressFlag,0x01<<(8-progress),OS_FLAG_SET,&err);
 }
+
+
 void FNDTask (void* data)
 {
 	INT8U err;
 	data = data;
-	 while(1) {     
-if(m==1){ 
-display_FND(1); 
-} 
-else if(m==0){ 
- display_FND(0);
- }
- else if(m==3){
-
- display_FND(3);
- }
-
-  }
+	char command;
+	while (1) {
+		command = *(OSMboxPend(FNDMbox, 0, &err));
+		switch (command)
+		{
+		case 'P':
+			display_FND(1);
+			break;
+		case 'S':
+			display_FND(0);
+			break;
+		case 'N':
+			display_FND(3);
+			break;
+		}
+	}
+  
 
 }
 
@@ -229,7 +248,7 @@ void LedTask (void *data)
 	//진행도 갖고오기
 	OSFlagPend(ProgressFlag,0xff,OS_FLAG_WAIT_SET_ANY,0,&err);
 	OSSemPend(MusicSem,0,&err);
-	progress = (INT8U)ProgressFlag->OSFlagFlags;
+		progress = (INT8U)ProgressFlag->OSFlagFlags;
 	OSSemPost(MusicSem);
 	OSFlagPost(ProgressFlag,0xff,OS_FLAG_CLR,&err);
 
