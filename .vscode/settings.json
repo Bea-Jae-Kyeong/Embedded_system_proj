@@ -4,10 +4,10 @@
         "OS_TASK.C": "c",
         "OS_MBOX.C": "c",
         "OS_MEM.C": "c",
-        "OS_CORE.C": "cpp",
-        "OS_FLAG.C": "cpp",
-        "OS_MUTEX.C": "cpp",
-        "OS_SEM.C": "cpp",
-        "OS_TIME.C": "cpp"
+        "OS_CORE.C": "c",
+        "OS_FLAG.C": "c",
+        "OS_MUTEX.C": "c",
+        "OS_SEM.C": "c",
+        "OS_TIME.C": "c"
     }
 }
