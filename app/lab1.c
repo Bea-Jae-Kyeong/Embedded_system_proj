@@ -1,10 +1,11 @@
+#define __AVR_ATmega128__
 #include "includes.h"
 #include <avr/io.h>	
 #define F_CPU	16000000UL	// CPU frequency = 16 Mhz
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "flashmem.h"
-
+#define NULL 0x00
 #define  TASK_STK_SIZE  OS_TASK_DEF_STK_SIZE            
 #define QUEUE_SIZE 10
 OS_STK          LedTaskStk[TASK_STK_SIZE];
@@ -131,6 +132,7 @@ int main (void)
 
   	return 0;
 }
+
 void display_FND(int count)
 { 
 	int i, fnd[4];
@@ -181,7 +183,7 @@ void display_FND(int count)
 void MainTask (void* data)
 {
 	data = data;
-	
+	char ping;
 	while (TRUE)
 	{
 		if (playButton_Press)
@@ -189,14 +191,17 @@ void MainTask (void* data)
 			playButton_Press = FALSE;
 
 			if (isPlaying == TRUE)
-				OSMboxPost(FNDMbox, &('P'));//play ping
+				ping = 'P';	//play ping
 			else
-				OSMboxPost(FNDMbox, &('S'));//pause ping
+				ping = 'S';//stop ping
+
+			OSMboxPost(FNDMbox, &ping);
 		}
 		if (nextButton_Press)
 		{
 			nextButton_Press = FALSE;
-			OSMboxPost(FNDMbox, &('N'));
+			ping = 'N';
+			OSMboxPost(FNDMbox, &ping);
 		}
 		OSTimeDly(3);
 	}
@@ -207,7 +212,7 @@ void MusicTask (void* data)
 {
 	INT8U err;
 	data = data;
-
+	INT8U progress;
 	OSSemPend(MusicSem, 0, &err);
 		isPlaying = FALSE;
 	OSSemPost(MusicSem);
@@ -223,7 +228,7 @@ void FNDTask (void* data)
 	data = data;
 	char command;
 	while (1) {
-		command = *(OSMboxPend(FNDMbox, 0, &err));
+		command = *((char*)OSMboxPend(FNDMbox, 0, &err));
 		switch (command)
 		{
 		case 'P':
@@ -248,18 +253,21 @@ void LedTask (void *data)
   	data = data;   
 	INT8U progress; 
   	
-	//진행도 갖고오기
-	OSFlagPend(ProgressFlag,0xff,OS_FLAG_WAIT_SET_ANY,0,&err);
-	OSSemPend(MusicSem,0,&err);
-		progress = (INT8U)ProgressFlag->OSFlagFlags;
-	OSSemPost(MusicSem);
-	OSFlagPost(ProgressFlag,0xff,OS_FLAG_CLR,&err);
 
-	if(progress == 0x80)
-	{
-		PORTA = 0x00;
+	while(TRUE)
+	{  
+		//진행도 갖고오기
+		OSFlagPend(ProgressFlag,0xff,OS_FLAG_WAIT_SET_ANY,0,&err);
+		OSSemPend(MusicSem,0,&err);
+			progress = (INT8U)ProgressFlag->OSFlagFlags;
+		OSSemPost(MusicSem);
+		OSFlagPost(ProgressFlag,0xff,OS_FLAG_CLR,&err);
+
+		if(progress == 0x80)
+		{
+			PORTA = 0x00;
+		}
+		PORTA |= progress;
 	}
-	PORTA |= progress;
-
+	return;
 }
-
