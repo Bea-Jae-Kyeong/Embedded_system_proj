@@ -135,7 +135,7 @@ int main (void)
 
 void display_FND(int count)
 { 
-	int i, fnd[4];
+	int i;
 	if(count==1){  
 		for(i=0; i<4; i++) { 
 			PORTC = stop[i];
