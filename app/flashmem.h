@@ -1,11 +1,15 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
-const unsigned char play[] = { 0x6e,  0x77, 0x38,0x73 };
-const unsigned char stop[] = {0x73,0x3f,0x78,0x6d };
-const unsigned char no[] = {0x3f, 0x37 };
-const unsigned char digit[] = { 0x3f,0x06,0x5b,0x4f };
 
-const unsigned char fnd_sel[] = { 0x01,0x02,0x04,0x08 };
+const unsigned char play[] PROGMEM = { 0x73, 0x38, 0x77, 0x6e };
+const unsigned char stop[] PROGMEM = { 0x6d, 0x78, 0x3f, 0x73 };
+const unsigned char no[]   PROGMEM = { 0x54, 0xDC };
+
+
+const unsigned char FND_NUMBERS[] PROGMEM = { 0x3f, 0x06, 0x5b, 0x4F, 0x66, 0x6d, 0x7d, 0x27, 0x7f, 0x6f };
+const unsigned char FND_DIGIT[]   PROGMEM = { 0x08, 0x04, 0x02, 0x01 };
+
+
 const unsigned char timer1_key_data_high[] PROGMEM = {
 	  0,														//NoSound  //0
 //   C    C#   D    D#   E    F    F#   G    G#   A    A#   B
@@ -17,11 +21,11 @@ const unsigned char timer1_key_data_high[] PROGMEM = {
 	248, 248, 249, 249, 250, 250, 250, 251, 251, 251, 251, 252, //5 octave //52 ~ 63
 	252, 252, 252, 252, 253, 253, 253, 253, 253, 253, 253, 254, //6 octave //64 ~ 75
 	254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254, 255, //7 octave //76 ~ 87
-	255                                                         //8 octave //88 
-	
+	255                                                         //8 octave //88
 };
+
 const unsigned char timer1_key_data_low[] PROGMEM ={
-	  10,														//NoSound  //0
+	  10,														//NoSound  // 0
 //   C    C#   D    D#   E    F    F#   G    G#   A    A#   B
 												 243, 236, 115, //0 octave // 1 ~ 3
 	141,  65, 149, 142,  49, 131, 137,  71, 192, 249, 246, 185, //1 octave // 4 ~ 15
@@ -42,7 +46,7 @@ const unsigned char track2_note_key[] PROGMEM = {
 	59,	54,	0,	56,	59,	66,	64,	71,
 	 0,	71,	69,	68,	69,	68,	64,	69,
 	68,	66,	68,	66,	59,	 0,	71,	69,
-	68,	69,	68,	64,	69,	73,
+	68,	69,	68,	64,	69,	73
 };
 
 const unsigned char track2_note_size[] PROGMEM = {
@@ -66,19 +70,16 @@ const unsigned char track1_note_key[] PROGMEM = {
 	43,	42,	41,	30,	38,	35
 };
 const unsigned char track1_note_sizes[] PROGMEM ={
-	4,  6,  2,  4,  8,
-	4,12,12,6,2,
-	4,8,4,16,4,
-	4,6,2,4,8,
-	4,8,4,8,4,
-	6,2,4,8,4,
-	20,4,8,4,8,
-	4,8,4,8,4,
-	6,2,4,8,4,
-	16,4,4,8,4,
-	8,4,8,4,8,
-	4,6,2,4,8,
-	4,20
+	 4,  6,  2,  4,  8,  4, 12, 12,
+	 6,  2,  4,  8,  4, 16,  4,  4,
+	 6,  2,  4,  8,  4,  8,  4,  8,
+	 4,  6,  2,  4,  8,  4, 20,  4,
+	 8,  4,  8,  4,  8,  4,  8,  4,
+	 6,  2,  4,  8,  4, 16,  4,  4,
+	 8,  4,  8,  4,  8,  4,  8,  4,
+	 6,  2,  4,  8,  4, 20
 };
 
-const unsigned short total_song_size PROGMEM;
+const unsigned short total_song_size[] PROGMEM = {
+	62, 54, 128, 111
+};

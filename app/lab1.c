@@ -17,6 +17,7 @@ OS_EVENT* PlayMbox;
 OS_EVENT* PlayQueue;
 OS_FLAG_GRP* ProgressFlag;//진행도 플래그
 volatile INT8U count = 0;
+volatile INT8U digit = 0;
 volatile INT8U beat = 0;
 volatile INT8U state;
 volatile int notes=0;
@@ -24,6 +25,7 @@ volatile INT8U playButton_Press;
 volatile INT8U nextButton_Press;
 volatile INT8U isPlaying;
 volatile INT8U TrackNumber = 1;
+volatile INT8U fnd_out[4] = {0x00,0x00,0x00,0x00};
 
 INT8U default_BPM; //48 for harry potter, 120 for zelda, 
 
@@ -31,7 +33,7 @@ INT8U default_BPM; //48 for harry potter, 120 for zelda,
 //소리 재생용 인터럽트
 ISR(TIMER1_OVF_vect)
 {
-	if(state==0xff){
+	if(state == 0xff){
 		PORTB = 0x00;
 		state = ~state;
 	}
@@ -44,16 +46,25 @@ ISR(TIMER1_OVF_vect)
 }
 
 
-//박자 재생용 인터럽트
+//박자 재생용&FND 표시용 인터럽트
 ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 {                  
 	count++;
-	if(count==125) //0.0625초 ->1/16초 ==> 16분음마다 이 카운터가 돌아감
+	if(count==5) //0.025초 ->2.5ms
 	{
 		count = 0;
+		digit++;
 		beat++;
-		if(beat == track1_note_key[notes])
+		PORTC = fnd_out[digit];
+		PORTG = FND_DIGIT[digit];
+		if(digit == 4)
 		{
+			digit = 0;
+		}
+		if(beat == 25){ //62.5ms ->16분음마다 돌아감 
+			beat = 0;
+			if(beat == track1_note_key[notes])
+		
 			notes++;
 			beat = 0;
 		}
@@ -92,9 +103,9 @@ int main (void)
   	OSInit();
 
   	OS_ENTER_CRITICAL();
-  	TCCR0=0x07;  
-  	TIMSK=_BV(TOIE0);                  
-  	TCNT0=256-(CPU_CLOCK_HZ/OS_TICKS_PER_SEC/ 1024);   
+  	TCCR0 = 0x07;  //0b00000111 => 1024분주 
+  	TIMSK = _BV(TOIE0);                  
+  	TCNT0 = 256 - (CPU_CLOCK_HZ/OS_TICKS_PER_SEC/ 1024);  //timer0 is used on uCOS-II 
 	DDRA = 0xff; //LED 출력 설정
   	DDRB = 0x10; //버저 출력(PB4) 설정
 	DDRC = 0xff; //FND Data 출력 설정
@@ -109,7 +120,7 @@ int main (void)
 	TCNT1H = timer1_key_data_high[track1_note_key[beat]+1];
 	TCNT1L = timer1_key_data_low[track1_note_key[beat]+1];
 	
-	TIMSK |= 0x44;//0b0100 0100	
+	TIMSK |= 0x44; //0b0100 0100	
 	SREG |= 1<<7; //전역 인터럽트 Enable 설정
   	OS_EXIT_CRITICAL();
 	playButton_Press = FALSE;
@@ -133,49 +144,36 @@ int main (void)
   	return 0;
 }
 
-void display_FND(int count)
+/*
+	FND 표시 부분을 Timer2에 넣어주는게 좋을 것 같음. => Volatile INT8U 변수 배열로 넣어주고 그에 엑세스 하도록
+	Timer2 인터럽트 발생 빈도인 0.5ms에 따라 카운터 5개짜리 하나 만들어서 FND값을 조정
+*/
+void display_FND(int command)
 { 
-	int i, fnd[4];
-	if(count==1){  
-		for(i=0; i<4; i++) { 
-			PORTC = stop[i];
-			PORTG = fnd_sel[i];
-			_delay_ms(2.5);
-		}
-	}
-	else if(count==0){
+	int i;
 
-		for(i=0; i<4; i++) { 
-			PORTC = play[i];
-			PORTG = fnd_sel[i];
+	switch(command){
+	case 1:
+		for(i = 0; i < 4; i++)
+			fnd_out[i] = stop[i];
+			
+		break;
  
-			_delay_ms(2.5);
-		}
+	case 0:
+		for(i = 0; i < 4; i++)
+			fnd_out[i] = play[i];
+			
+		break;
+ 
+	case 3:
+		for(i = 0; i < 2; i++) 
+			fnd_out[i] = no[i];
+		
+		fnd_out[i++] = FND_NUMBERS[0];
+		fnd_out[i] = FND_NUMBERS[TrackNumber];
+		break;
 	}
-	else if(count==3){
-		for(i=0; i<4; i++) {
-			if(i==0){
-				PORTC = digit[TrackNumber];
-				PORTG = fnd_sel[i];
- 
-				_delay_ms(2.5);
-			}
-			else if(i==1){
 
-				PORTC = digit[0];
-				PORTG = fnd_sel[i];
- 
-				_delay_ms(2.5);
-			}
-			else {
-				PORTC = no[i-2];
-				PORTG = fnd_sel[i];
- 
-				_delay_ms(2.5);
-			}
-		  
-		}
-	}
 
 }
 
