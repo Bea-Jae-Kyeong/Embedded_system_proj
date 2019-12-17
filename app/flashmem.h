@@ -1,4 +1,4 @@
-#include <avr/io.h>
+
 #include <avr/pgmspace.h>
 
 const unsigned char play[] PROGMEM = { 0x73, 0x38, 0x77, 0x6e };
@@ -6,8 +6,8 @@ const unsigned char stop[] PROGMEM = { 0x6d, 0x78, 0x3f, 0x73 };
 const unsigned char no[]   PROGMEM = { 0x54, 0xDC };
 
 
-const unsigned char FND_NUMBERS[] PROGMEM = { 0x3f, 0x06, 0x5b, 0x4F, 0x66, 0x6d, 0x7d, 0x27, 0x7f, 0x6f };
-const unsigned char FND_DIGIT[]   PROGMEM = { 0x08, 0x04, 0x02, 0x01 };
+const unsigned char FND_NUMBERS[]  = { 0x3f, 0x06, 0x5b, 0x4F, 0x66, 0x6d, 0x7d, 0x27, 0x7f, 0x6f };
+const unsigned char FND_DIGIT[]   = { 0x08, 0x04, 0x02, 0x01 };
 
 
 const unsigned char timer1_key_data_high[] PROGMEM = {
@@ -25,7 +25,7 @@ const unsigned char timer1_key_data_high[] PROGMEM = {
 };
 
 const unsigned char timer1_key_data_low[] PROGMEM ={
-	  10,														//NoSound  // 0
+	  3,														//NoSound  // 0
 //   C    C#   D    D#   E    F    F#   G    G#   A    A#   B
 												 243, 236, 115, //0 octave // 1 ~ 3
 	141,  65, 149, 142,  49, 131, 137,  71, 192, 249, 246, 185, //1 octave // 4 ~ 15
@@ -79,6 +79,50 @@ const unsigned char track1_note_sizes[] PROGMEM ={
 	 8,  4,  8,  4,  8,  4,  8,  4,
 	 6,  2,  4,  8,  4, 20
 };
+const unsigned char track3_note_key[] PROGMEM = {
+	52, 64, 59, 0, 57, 64, 52, 0, 
+	52, 57, 64, 66, 64, 59, 57, 0, 
+	52, 64, 59, 0, 57, 64, 52, 0, 
+52, 57, 64, 66, 64, 59, 57, 0, 
+49, 50, 52, 0, 64, 61, 59, 57, 
+56, 57, 59, 68, 67, 66, 65, 64, 
+0, 56, 64, 61, 59, 57, 59, 61, 
+59, 61, 59, 57, 56, 57, 52, 64, 
+61, 59, 57, 56, 57, 59, 68, 67, 
+66, 65, 64, 0, 56, 64, 61, 59, 
+57, 59, 61, 59, 61, 59, 57, 56, 
+57, 64, 57, 59, 57, 51, 57, 59, 
+57, 50, 57, 59, 62, 61, 59, 57, 
+52, 64, 57, 59, 57, 51, 57, 59, 
+57, 50, 57, 59, 62, 61, 59, 57, 
+52, 64, 57, 59, 57, 51, 57, 59, 
+57, 50, 57, 59, 62, 61, 59, 57, 
+52, 64, 57, 59, 57, 51, 57, 59, 
+57, 50, 57, 59, 62, 61, 59, 57, 
+52, 
+};
+const unsigned char track3_note_key[] PROGMEM = {
+	8, 8, 8, 8, 8, 8, 8, 8, 
+8, 8, 8, 8, 8, 8, 8, 8, 
+8, 8, 8, 8, 8, 8, 8, 8, 
+8, 8, 8, 8, 8, 8, 8, 8, 
+1, 1, 4, 4, 4, 4, 4, 4, 
+4, 4, 8, 4, 1, 1, 2, 4, 
+12, 8, 4, 4, 4, 4, 4, 4, 
+8, 8, 4, 4, 4, 4, 8, 4, 
+4, 4, 4, 4, 4, 8, 4, 1, 
+1, 2, 4, 12, 8, 4, 4, 4, 
+4, 4, 4, 8, 8, 4, 4, 4, 
+4, 4, 4, 4, 4, 4, 4, 4, 
+4, 4, 4, 4, 4, 4, 4, 4, 
+4, 4, 4, 4, 4, 4, 4, 4, 
+4, 4, 4, 4, 4, 4, 4, 4, 
+4, 4, 4, 4, 4, 4, 4, 4, 
+4, 4, 4, 4, 4, 4, 4, 4, 
+4, 4, 4, 4, 4, 4, 4, 4, 
+4, 4, 4, 4, 4, 4, 4, 4, 
+4, 
+}
 
 const unsigned short total_song_size[] PROGMEM = {
 	62, 54, 128, 111
