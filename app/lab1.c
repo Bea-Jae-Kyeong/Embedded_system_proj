@@ -27,8 +27,10 @@ volatile INT8U playButton_Press;
 volatile INT8U nextButton_Press;
 volatile INT8U isPlaying;
 volatile INT8U TrackNumber = 1;
-volatile INT8U fnd_out[4] = {0x3f,0x3f,0x3f,0x3f};
-
+volatile INT8U fnd_out[4] = { 0x54, 0xDC, 0x3f, 0x06 };
+volatile INT8U prog=0;
+volatile INT8U playButtonCount = 0;
+volatile INT8U First;
 INT8U default_BPM; //48 for harry potter, 120 for zelda,
 
 
@@ -52,8 +54,7 @@ ISR(TIMER1_OVF_vect)
 ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 {
 	PORTC = fnd_out[digit];
-	PORTG = FND_DIGIT[digit];
-	digit++;
+	PORTG = FND_DIGIT[digit++];
 	if(digit == 4)
 	{
 		digit = 0;
@@ -79,16 +80,19 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 ISR(INT4_vect)
 {
 	playButton_Press = TRUE;
+	++playButtonCount;
+	if (playButtonCount % 2 == 1)
+		isPlaying = TRUE;
+	else
+		isPlaying = FALSE;
 	OSTimeDlyHMSM(0,0,0,30);
 }
 //다음곡 버튼을 누르는 경우
 ISR(INT5_vect)
 {
 	nextButton_Press = TRUE;
-	TrackNumber++;
-	if(TrackNumber > 4){
-		TrackNumber = 1;
-	}
+	isPlaying = TRUE;
+	prog=1;
 	OSTimeDlyHMSM(0,0,0,30);
 }
 
@@ -128,7 +132,7 @@ int main (void)
 	playButton_Press = FALSE;
 	nextButton_Press = FALSE;
 	isPlaying = FALSE;	// 재생버튼 누르기 전 초기 상태
-
+	First = TRUE;		// 초기 상태
 
 	MusicSem = OSSemCreate(1);
 	PlayMbox = OSMboxCreate(NULL);
@@ -223,10 +227,16 @@ void MusicTask (void* data)
 	*/
 	while (TRUE)
 	{
-		OSFlagPost(ProgressFlag,(OS_FLAGS)(0x01<<(7-progress)),OS_FLAG_SET,&err);
-		progress = (progress+1)%8;
-
-		OSTimeDlyHMSM(0,0,1,0);
+		if (isPlaying==TRUE) {
+			OSFlagPost(ProgressFlag, (OS_FLAGS)(0x01 << (7 - progress)), OS_FLAG_SET, &err);
+			progress = (progress + 1) % 8;
+			if (prog == 1) {
+				progress = 0;
+			}
+			OSTimeDlyHMSM(0, 0, 1, 0);
+		}
+		else
+			OSTimeDlyHMSM(0, 0, 1, 0);
 	}
 }
 
@@ -241,7 +251,7 @@ void FNDTask (void* data)
 		switch (command)
 		{
 		case 'P':
-			display_FND(0);
+			display_FND(3);
 			break;
 		case 'S':
 			display_FND(1);
@@ -260,8 +270,8 @@ void FNDTask (void* data)
 void LedTask (void *data)
 {
 	INT8U err;
-  	data = data;
 	INT8U progress;
+  	data = data;
 
 
 	while(TRUE)
@@ -275,9 +285,24 @@ void LedTask (void *data)
 
 		if(progress == 0x80)
 		{
+			if (TrackNumber == 4) {
+				TrackNumber = 0;
+			}
+			if(First==FALSE)	// 첫 시작에 대한 예외 처리
+				fnd_out[3] = FND_NUMBERS[++TrackNumber];
+			else {
+				First = FALSE;
+				fnd_out[3] = FND_NUMBERS[TrackNumber];
+			}
 			PORTA = 0x00;
 		}
-		PORTA |= progress;
+		if (prog == 1) {
+			prog = 0;
+			PORTA = 0x00;
+		}
+		else {
+			PORTA |= progress;
+		}
 		OSTimeDlyHMSM(0,0,0,30);
 	}
 	return;
