@@ -1,14 +1,14 @@
 #define __AVR_ATmega128__
-#include "includes.h"
-#include <avr/io.h>
 #define F_CPU	16000000UL	// CPU frequency = 16 Mhz
-#include <avr/interrupt.h>
-#include <util/delay.h>
-#include "flashmem.h"
 #define NULL 0x00
 #define  TASK_STK_SIZE  OS_TASK_DEF_STK_SIZE
 #define QUEUE_SIZE 10
 #define N_TASK 4
+#include "includes.h"
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+#include "flashmem.h"
 OS_STK          TaskStk[N_TASK][TASK_STK_SIZE];
 
 
@@ -63,7 +63,7 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 	{
 		count = 0;
 		note++;
-		if(note == track1_note_sizes[notes])
+		if(note == track1_note_size[notes])
 		{
 			note = 0;
 			notes++;
@@ -79,7 +79,7 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 ISR(INT4_vect)
 {
 	playButton_Press = TRUE;
-	_delay_ms(30);
+	OSTimeDlyHMSM(0,0,0,30);
 }
 //다음곡 버튼을 누르는 경우
 ISR(INT5_vect)
@@ -89,7 +89,7 @@ ISR(INT5_vect)
 	if(TrackNumber > 4){
 		TrackNumber = 1;
 	}
-	_delay_ms(30);
+	OSTimeDlyHMSM(0,0,0,30);
 }
 
 void LedTask(void *data);
@@ -127,7 +127,7 @@ int main (void)
   	OS_EXIT_CRITICAL();
 	playButton_Press = FALSE;
 	nextButton_Press = FALSE;
-	isPlaying = FALSE;
+	isPlaying = FALSE;	// 재생버튼 누르기 전 초기 상태
 
 
 	MusicSem = OSSemCreate(1);
@@ -191,7 +191,7 @@ void MainTask (void* data)
 		{
 			playButton_Press = FALSE;
 
-			if (isPlaying == FALSE)
+			if (isPlaying == TRUE)
 				ping = 'P';	//play ping
 			else
 				ping = 'S';//stop ping
@@ -241,10 +241,10 @@ void FNDTask (void* data)
 		switch (command)
 		{
 		case 'P':
-			display_FND(1);
+			display_FND(0);
 			break;
 		case 'S':
-			display_FND(0);
+			display_FND(1);
 			break;
 		case 'N':
 			display_FND(3);
