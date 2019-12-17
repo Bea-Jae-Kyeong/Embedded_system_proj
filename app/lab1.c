@@ -43,40 +43,32 @@ ISR(TIMER1_OVF_vect)
 		PORTB = 0x10;
 		state = ~state;
 	}
-	TCNT1H = timer1_key_data_high[track1_note_key[notes]];
-	TCNT1L = timer1_key_data_low[track1_note_key[notes]];
+	TCNT1H = timer1_key_data_high[track1_note_key[notes]+15];
+	TCNT1L = timer1_key_data_low[track1_note_key[notes]+15];
 }
 
 
 //박자 재생용&FND 표시용 인터럽트
 ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 {
+	PORTC = fnd_out[digit];
+	PORTG = FND_DIGIT[digit];
+	digit++;
+	if(digit == 4)
+	{
+		digit = 0;
+	}
 	count++;
-	if(count == 5) //0.025초 ->2.5ms
+	if(count == 125) //62.5ms ->16분음마다 돌아감
 	{
 		count = 0;
-		PORTC = fnd_out[digit];
-		PORTG = FND_DIGIT[digit];
-		
-		
-
-
-		digit++;
-		if(digit == 4)
+		note++;
+		if(note == track1_note_sizes[notes])
 		{
-			digit = 0;
+			note = 0;
+			notes++;
 		}
-
-		beat++;
-		if(beat == 25){ //62.5ms ->16분음마다 돌아감
-			beat = 0;
-			note++;
-			if(note == track1_note_sizes[notes])
-			{
-				note = 0;
-				notes++;
-			}
-		}
+		
 		
 	}
 	TCNT2 = 125;
@@ -205,6 +197,7 @@ void MainTask (void* data)
 				ping = 'S';//stop ping
 
 			OSMboxPost(FNDMbox, &ping);
+			//OSTimeDlyHMSM(0,0,1,500);
 		}
 		if (nextButton_Press)
 		{
@@ -230,8 +223,10 @@ void MusicTask (void* data)
 	*/
 	while (TRUE)
 	{
-		//OSFlagPost(ProgressFlag,(OS_FLAGS)(0x01<<7),OS_FLAG_SET,&err);
-		OSTimeDlyHMSM(0,0,0,100);
+		OSFlagPost(ProgressFlag,(OS_FLAGS)(0x01<<(7-progress)),OS_FLAG_SET,&err);
+		progress = (progress+1)%8;
+
+		OSTimeDlyHMSM(0,0,1,0);
 	}
 }
 
