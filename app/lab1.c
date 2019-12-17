@@ -68,8 +68,8 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 			note = 0;
 			notes++;
 		}
-		
-		
+
+
 	}
 	TCNT2 = 125;
 }
