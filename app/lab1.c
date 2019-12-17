@@ -71,7 +71,7 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 		if(beat == 25){ //62.5ms ->16분음마다 돌아감
 			beat = 0;
 			note++;
-			if(note == track1_note_sizes[notes])
+			if(note == track1_note_size[notes])
 			{
 				note = 0;
 				notes++;

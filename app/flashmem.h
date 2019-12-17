@@ -69,7 +69,7 @@ const unsigned char track1_note_key[] PROGMEM = {
 	42,	38,	42,	38,	45,	44,	43,	39,
 	43,	42,	41,	30,	38,	35
 };
-const unsigned char track1_note_sizes[] PROGMEM ={
+const unsigned char track1_note_size[] PROGMEM ={
 	 4,  6,  2,  4,  8,  4, 12, 12,
 	 6,  2,  4,  8,  4, 16,  4,  4,
 	 6,  2,  4,  8,  4,  8,  4,  8,
@@ -101,7 +101,7 @@ const unsigned char track3_note_key[] PROGMEM = {
 57, 50, 57, 59, 62, 61, 59, 57, 
 52, 
 };
-const unsigned char track3_note_key[] PROGMEM = {
+const unsigned char track3_note_size[] PROGMEM = {
 	8, 8, 8, 8, 8, 8, 8, 8, 
 8, 8, 8, 8, 8, 8, 8, 8, 
 8, 8, 8, 8, 8, 8, 8, 8, 
@@ -122,7 +122,7 @@ const unsigned char track3_note_key[] PROGMEM = {
 4, 4, 4, 4, 4, 4, 4, 4, 
 4, 4, 4, 4, 4, 4, 4, 4, 
 4, 
-}
+};
 
 const unsigned short total_song_size[] PROGMEM = {
 	62, 54, 128, 111
