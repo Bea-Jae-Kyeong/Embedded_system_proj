@@ -251,10 +251,14 @@ void FNDTask (void* data)
 		switch (command)
 		{
 		case 'P':
+			display_FND(0);
+			OSTimeDlyHMSM(0, 0, 1.5, 0);	// 1.5초 뒤 트랙 번호 띄워줌
 			display_FND(3);
 			break;
 		case 'S':
 			display_FND(1);
+			OSTimeDlyHMSM(0, 0, 1.5, 0);
+			display_FND(3);
 			break;
 		case 'N':
 			display_FND(3);
