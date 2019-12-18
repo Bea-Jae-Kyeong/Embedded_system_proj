@@ -262,7 +262,7 @@ void playControlTask(void* data)
 		if(command == 'N')
 		{
 			isPlaying = TRUE;
-			notes += total_song_length[TrackNumber];
+			notes += total_song_size[TrackNumber];
 			TrackNumber++;
 		}
 		
