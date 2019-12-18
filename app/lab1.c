@@ -35,7 +35,25 @@ OS_EVENT* PlayQueue;
 OS_FLAG_GRP* ProgressFlag;//진행도 플래그
 
 
+INT8U track2_note_key[]  = {
+	56,	59,	54,	52,	54,	56,	59,	54,
+	0,	56,	59,	66,	64,	59,	57,	56,
+	54,	 0,	56,	59,	54,	52,	54,	56,
+	59,	54,	0,	56,	59,	66,	64,	71,
+	 0,	71,	69,	68,	69,	68,	64,	69,
+	68,	66,	68,	66,	59,	 0,	71,	69,
+	68,	69,	68,	64,	69,	73
+};
 
+INT8U track2_note_size[]  = {
+	4,	2,	4,	1,	1,	4,	2,	4,
+	2,	4,	2,	4,	2,	4,	1,	1,
+	4,	2,	4,	2,	4,	1,	1,	4,
+	2,	4,	2,	4,	2,	4,	2, 10,
+	2,	4,	1,	1,	1,	1,	4,	4,
+	1,	1,	1,	1,	2,	2,	4,	1,
+	1,	1,	1,	2,	2,	12
+};
 
 //소리 재생용 인터럽트
 ISR(TIMER1_OVF_vect)
@@ -66,12 +84,12 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 	if(beat == 125) //62.5ms ->16분음마다 돌아감
 	{
 		beat = 0;
-		if(isPlaying)
 		note++;
 		if(track2_note_size[notes] == note)
 		{
 			note = 0;
-			notes++;
+			if(isPlaying == TRUE)
+				notes++;
 		}
 
 
@@ -276,7 +294,7 @@ void FNDTask (void* data)
 			display_FND(3);
 			break;
 		}
-		OSTimeDlyHMSM(0, 0, 0, 300);
+		OSTimeDlyHMSM(0, 0, 0, 30);
 	}
 
 
