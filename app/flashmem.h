@@ -182,8 +182,6 @@ INT8U track_note_size[]  ={
 	2, 2, 2, //track 4 end
 };
 
-
-
-INT16U total_song_size[]  = {
-	0,62, 54, 153, 235
+INT16U total_song_length[]  = {
+	0, 384, 144, 1154, 894
 };
