@@ -92,8 +92,9 @@ ISR(INT4_vect)
 ISR(INT5_vect)
 {
 	nextButton_Press = TRUE;
-
+	isPlaying = TRUE;
 	prog=1;
+	notes = total_song_notes[TrackNumber];
 	_delay_ms(15);
 }
 
@@ -223,7 +224,7 @@ void MainTask (void* data)
 			ping = 'N';
 			OSQPost(PlayQueue, &ping);
 		}
-		OSTimeDlyHMSM(0, 0, 0, 100);
+		OSTimeDlyHMSM(0, 0, 0, 500);
 	}
 
 }
@@ -244,14 +245,16 @@ void MusicTask (void* data)
 		if (isPlaying == TRUE) {
 			OSFlagPost(ProgressFlag, (OS_FLAGS)(0x01 << (7 - progress)), OS_FLAG_SET, &err);
 			progress = (progress + 1) % 8;
+			
 			if (prog == 1) {
 				progress = 0;
 			}
-			//OSTimeDlyHMSM(0, 0, total_song_length[TrackNumber]/32, 0);
+			
+			OSTimeDlyHMSM(0, 0, total_song_time[TrackNumber], 0);
 		}
 		else
 		{
-			//OSTimeDlyHMSM(0, 0, total_song_length[TrackNumber] /32, 0);
+			OSTimeDlyHMSM(0, 0, 1, 0);
 		}
 
 
@@ -268,11 +271,11 @@ void playControlTask(void* data)
 		{
 			OSSemPend(MusicSem,0,&err);
 			isPlaying = TRUE;
-			notes = total_song_notes[TrackNumber];
 			TrackNumber++;
+			prog = 1;
 			OSSemPost(MusicSem);
 		}
-		else if(command =='P')
+		if(command =='P')
 		{
 			OSSemPend(MusicSem,0,&err);
 			isPlaying = TRUE;
@@ -305,13 +308,14 @@ void FNDTask (void* data)
 		if(command =='P'){
 			display_FND(0);
 			OSQPost(PlayQueue,&command);
+			OSTimeDlyHMSM(0, 0, 0, 500);// 0.5초 뒤 트랙 번호 띄워줌
 		}
 		else
 		{
 			OSQPost(PlayQueue,&command);
 			display_FND(1);
+			OSTimeDlyHMSM(0, 0, 1, 500);// 1.5초 뒤 트랙 번호 띄워줌
 		}
-		OSTimeDlyHMSM(0, 0, 1, 500);// 1.5초 뒤 트랙 번호 띄워줌
 		display_FND(3);
 
 	}
@@ -346,7 +350,7 @@ void LedTask (void *data)
 				First = FALSE;
 				fnd_out[3] = FND_NUMBERS[TrackNumber];
 			}
-			//PORTA = 0x00;
+			PORTA = 0x00;
 		}
 		if (prog == 1) {
 			prog = 0;
