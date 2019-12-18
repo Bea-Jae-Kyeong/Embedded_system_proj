@@ -3,12 +3,18 @@
 #define NULL 0x00
 #define  TASK_STK_SIZE  OS_TASK_DEF_STK_SIZE
 #define QUEUE_SIZE 10
-#define N_TASK 4
+#define N_TASK 5
 #include "includes.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "flashmem.h"
+OS_STK          TaskStk[N_TASK][TASK_STK_SIZE];
+OS_EVENT* MusicSem;
+OS_EVENT* FNDMbox;
+OS_EVENT* PlayMbox;
+OS_EVENT* PlayQueue;
+OS_FLAG_GRP* ProgressFlag;//진행도 플래그
 
 volatile INT8U count = 0;
 volatile INT8U digit = 0;
@@ -27,12 +33,7 @@ volatile INT8U prog=0;
 volatile INT8U playButtonCount = 0;
 volatile INT8U First;
 INT16U kick;
-OS_STK          TaskStk[N_TASK][TASK_STK_SIZE];
-OS_EVENT* MusicSem;
-OS_EVENT* FNDMbox;
-OS_EVENT* PlayMbox;
-OS_EVENT* PlayQueue;
-OS_FLAG_GRP* ProgressFlag;//진행도 플래그
+
 
 
 
@@ -101,7 +102,7 @@ void FNDTask (void* data);
 void MusicTask (void* data);
 void MainTask (void* data);
 void display_FND(int count);
-
+void playControlTask(void* data);
 int main (void)
 {
 	INT8U err;
@@ -145,7 +146,7 @@ int main (void)
 	OSTaskCreate(MusicTask, (void*)0, (void *)&TaskStk[1][TASK_STK_SIZE - 1], 1);
   	OSTaskCreate(LedTask, (void *)0, (void *)&TaskStk[2][TASK_STK_SIZE - 1], 2);
 	OSTaskCreate(FNDTask, (void*)0, (void *)&TaskStk[3][TASK_STK_SIZE - 1], 3);
-
+	OSTaskCreate(playControlTask, (void*)0, (void *)&TaskStk[4][TASK_STK_SIZE - 1], 4);
 
   	OSStart();
 
@@ -216,7 +217,7 @@ void MainTask (void* data)
 			OSMboxPost(FNDMbox, &ping);
 			//OSTimeDlyHMSM(0,0,1,500);
 		}
-		else if (nextButton_Press)
+		if (nextButton_Press)
 		{
 			nextButton_Press = FALSE;
 			ping = 'N';
@@ -246,10 +247,14 @@ void MusicTask (void* data)
 			if (prog == 1) {
 				progress = 0;
 			}
-			OSTimeDlyHMSM(0, 0, total_song_length[TrackNumber]/32, 0);
+			//OSTimeDlyHMSM(0, 0, total_song_length[TrackNumber]/32, 0);
 		}
 		else
-			OSTimeDlyHMSM(0, 0, total_song_length[TrackNumber] /32, 0);
+		{
+			//OSTimeDlyHMSM(0, 0, total_song_length[TrackNumber] /32, 0);
+		}
+
+			
 	}
 }
 void playControlTask(void* data)
@@ -261,12 +266,27 @@ void playControlTask(void* data)
 		command = *(char*)OSQPend(PlayQueue,0,&err);
 		if(command == 'N')
 		{
+			OSSemPend(MusicSem,0,&err);
 			isPlaying = TRUE;
-			notes += total_song_length[TrackNumber];
+			notes = total_song_notes[TrackNumber];
 			TrackNumber++;
+			OSSemPost(MusicSem);
+		}
+		else if(command =='P')
+		{
+			OSSemPend(MusicSem,0,&err);
+			isPlaying = TRUE;
+			OSSemPost(MusicSem);
+		}
+		else
+		{
+			OSSemPend(MusicSem,0,&err);
+			isPlaying = FALSE;
+			OSSemPost(MusicSem);
 		}
 		
-
+		
+		OSTimeDlyHMSM(0,0,0,300);
 	}
 	
 
@@ -281,23 +301,19 @@ void FNDTask (void* data)
 	char command;
 	while (TRUE) {
 		command = *((char*)OSMboxPend(FNDMbox, 0, &err));	// Mailbox에서 받아옴
-		switch (command)
-		{
-		case 'P':
+		
+		if(command =='P'){
 			display_FND(0);
-			OSTimeDlyHMSM(0, 0, 1.5, 0);	// 1.5초 뒤 트랙 번호 띄워줌
-			display_FND(3);
-			break;
-		case 'S':
-			display_FND(1);
-			OSTimeDlyHMSM(0, 0, 1.5, 0);
-			display_FND(3);
-			break;
-		case 'N':
-			display_FND(3);
-			break;
+			OSQPost(PlayQueue,&command);
 		}
-		OSTimeDlyHMSM(0, 0, 0, 300);
+		else
+		{
+			OSQPost(PlayQueue,&command);
+			display_FND(1);
+		}
+		OSTimeDlyHMSM(0, 0, 1, 500);// 1.5초 뒤 트랙 번호 띄워줌
+		display_FND(3);
+		
 	}
 }
 
@@ -322,7 +338,7 @@ void LedTask (void *data)
 		if (progress == 0x80)
 		{
 			if (TrackNumber == 4) {
-				TrackNumber = 0;
+				TrackNumber = 1;
 			}
 			if (First == FALSE)	// 첫 시작에 대한 예외 처리
 				fnd_out[3] = FND_NUMBERS[++TrackNumber];

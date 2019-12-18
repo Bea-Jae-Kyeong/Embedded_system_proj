@@ -187,3 +187,7 @@ INT8U track_note_size[]  ={
 INT16U total_song_length[]  = {
 	0, 384, 144, 770, 750
 };
+
+INT16U total_song_notes[] = {
+	0,61,116,269,504
+};
