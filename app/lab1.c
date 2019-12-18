@@ -283,17 +283,17 @@ void FNDTask (void* data)
 		command = *((char*)OSMboxPend(FNDMbox, 0, &err));	// Mailbox에서 받아옴
 		switch (command)
 		{
-		case 'P':
+		case 'P':							//PLAY
 			display_FND(0);
-			OSTimeDlyHMSM(0, 0, 1.5, 0);	// 1.5초 뒤 트랙 번호 띄워줌
+			OSTimeDlyHMSM(0, 0, 0, 500);	// 0.5초 뒤 트랙 번호 띄워줌
 			display_FND(3);
 			break;
-		case 'S':
+		case 'S':							//STOP
 			display_FND(1);
-			OSTimeDlyHMSM(0, 0, 1.5, 0);
+			OSTimeDlyHMSM(0, 0, 1, 0);	// 1.5초 뒤 트랙 번호 띄워줌
 			display_FND(3);
 			break;
-		case 'N':
+		case 'N':							//Track Number
 			display_FND(3);
 			break;
 		}
