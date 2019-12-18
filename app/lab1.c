@@ -41,7 +41,7 @@ OS_FLAG_GRP* ProgressFlag;//진행도 플래그
 ISR(TIMER1_OVF_vect)
 {
 	kick = track_note_key[notes];
-	if(state == 0xff||!isPlaying){
+	if(state == 0xff||!isPlaying||kick==0){
 		PORTB = 0x00;
 	}
 	else{
@@ -64,7 +64,7 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 		digit = 0;
 	}
 	beat++;
-	if(beat == 55) //62.5ms ->16분음마다 돌아감
+	if(beat == 65) //62.5ms ->16분음마다 돌아감
 	{
 		beat = 0;
 		if(isPlaying)
