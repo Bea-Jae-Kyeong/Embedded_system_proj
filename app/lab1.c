@@ -94,8 +94,8 @@ ISR(INT5_vect)
 	nextButton_Press = TRUE;
 	isPlaying = TRUE;
 	prog=1;
+	_delay_ms(30);
 	notes = total_song_notes[TrackNumber];
-	_delay_ms(15);
 }
 
 void LedTask(void *data);
@@ -146,8 +146,8 @@ int main (void)
 	OSTaskCreate(MainTask, (void*)0, (void *)&TaskStk[0][TASK_STK_SIZE - 1], 0);
 	OSTaskCreate(MusicTask, (void*)0, (void *)&TaskStk[1][TASK_STK_SIZE - 1], 1);
   	OSTaskCreate(LedTask, (void *)0, (void *)&TaskStk[2][TASK_STK_SIZE - 1], 2);
-	OSTaskCreate(FNDTask, (void*)0, (void *)&TaskStk[3][TASK_STK_SIZE - 1], 3);
-	OSTaskCreate(playControlTask, (void*)0, (void *)&TaskStk[4][TASK_STK_SIZE - 1], 4);
+	OSTaskCreate(FNDTask, (void*)0, (void *)&TaskStk[3][TASK_STK_SIZE - 1], 4);
+	OSTaskCreate(playControlTask, (void*)0, (void *)&TaskStk[4][TASK_STK_SIZE - 1], 3);
 
   	OSStart();
 
@@ -181,6 +181,7 @@ void display_FND(int command)
 
 		fnd_out[i++] = FND_NUMBERS[0];
 		fnd_out[i] = FND_NUMBERS[TrackNumber];
+		
 		break;
 	}
 
@@ -267,11 +268,14 @@ void playControlTask(void* data)
 	char command;
 	while(TRUE){
 		command = *(char*)OSQPend(PlayQueue,0,&err);
+
+		
 		if(command == 'N')
 		{
 			OSSemPend(MusicSem,0,&err);
 			isPlaying = TRUE;
-			TrackNumber++;
+			++TrackNumber;
+			display_FND(3);
 			prog = 1;
 			OSSemPost(MusicSem);
 		}
@@ -341,6 +345,7 @@ void LedTask (void *data)
 
 		if (progress == 0x80)
 		{
+			
 			if (TrackNumber == 4) {
 				TrackNumber = 1;
 			}
@@ -350,6 +355,7 @@ void LedTask (void *data)
 				First = FALSE;
 				fnd_out[3] = FND_NUMBERS[TrackNumber];
 			}
+			
 			PORTA = 0x00;
 		}
 		if (prog == 1) {
