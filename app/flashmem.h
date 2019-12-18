@@ -10,7 +10,7 @@ const unsigned char FND_NUMBERS[]  = { 0x3f, 0x06, 0x5b, 0x4F, 0x66, 0x6d, 0x7d,
 const unsigned char FND_DIGIT[]   = { 0x08, 0x04, 0x02, 0x01 };
 
 
-const unsigned char timer1_key_data_high[] PROGMEM = {
+ unsigned char timer1_key_data_high[]  = {
 	0x00,																	//NoSound  //0
 //   C     C#     D    D#    E     F     F#    G     G#    A     A#    B
 														  0x71, 0x79, 0x81, //0 octave // 1 ~ 3
@@ -24,7 +24,7 @@ const unsigned char timer1_key_data_high[] PROGMEM = {
 	0xFF, 																	//8 octave //88
 };
 
-const unsigned char timer1_key_data_low[] PROGMEM ={
+ unsigned char timer1_key_data_low[]  ={
     0x00, 																	//NoSound  // 0
 //   C     C#     D    D#    E     F     F#    G     G#    A     A#    B
 													      0xF3, 0xEC, 0x73, //0 octave // 1 ~ 3
@@ -38,32 +38,7 @@ const unsigned char timer1_key_data_low[] PROGMEM ={
 	0x10, 																	//8 octave //88
 };
 
-const unsigned char test_track_key[] PROGMEM = {
-	0x1C,0x20,0x23,0x1C,0x00,0x1C,0x20,0x23,0x1C
-};
-const unsigned char test_track_note[] PROGMEM = {
-	0x04,0x04,0x04,0x04,0x04,0x04,0x04,0x04,0x04
-};
 
-const unsigned char track2_note_key[] PROGMEM = {
-	56,	59,	54,	52,	54,	56,	59,	54,
-	0,	56,	59,	66,	64,	59,	57,	56,
-	54,	 0,	56,	59,	54,	52,	54,	56,
-	59,	54,	0,	56,	59,	66,	64,	71,
-	 0,	71,	69,	68,	69,	68,	64,	69,
-	68,	66,	68,	66,	59,	 0,	71,	69,
-	68,	69,	68,	64,	69,	73
-};
-
-const unsigned char track2_note_size[] PROGMEM = {
-	4,	2,	4,	1,	1,	4,	2,	4,
-	2,	4,	2,	4,	2,	4,	1,	1,
-	4,	2,	4,	2,	4,	1,	1,	4,
-	2,	4,	2,	4,	2,	4,	2, 10,
-	2,	4,	1,	1,	1,	1,	4,	4,
-	1,	1,	1,	1,	2,	2,	4,	1,
-	1,	1,	1,	2,	2,	12
-};
 
 const unsigned char track1_note_key[] PROGMEM = {
 	30,	35,	38,	37,	35,	42,	40,	37,
