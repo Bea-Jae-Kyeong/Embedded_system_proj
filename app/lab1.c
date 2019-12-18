@@ -63,7 +63,7 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 		digit = 0;
 	}
 	beat++;
-	if(beat == 55) //62.5ms ->16분음마다 돌아감
+	if(beat == 55) //27.5ms
 	{
 		beat = 0;
 		if(isPlaying)
@@ -95,8 +95,10 @@ ISR(INT5_vect)
 	Next = TRUE;
 	_delay_ms(15);
 	if (TrackNumber >= 4) {
-
-		notes = total_song_notes[1];
+		_delay_ms(300);
+		First = TRUE;
+		TrackNumber = 1;
+		notes = total_song_notes[0];
 	}
 	else {
 		notes = total_song_notes[TrackNumber];
