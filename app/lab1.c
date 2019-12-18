@@ -94,7 +94,13 @@ ISR(INT5_vect)
 	prog=1;
 	Next = TRUE;
 	_delay_ms(15);
-	notes = total_song_notes[TrackNumber];
+	if (TrackNumber >= 4) {
+
+		notes = total_song_notes[1];
+	}
+	else {
+		notes = total_song_notes[TrackNumber];
+	}
 }
 
 void LedTask(void *data);
@@ -251,7 +257,7 @@ void MusicTask (void* data)
 			}
 			if (Next == TRUE) {
 				Next = FALSE;
-				OSTimeDlyHMSM(0, 0, 1, 0);
+				OSTimeDlyHMSM(0, 0, 0, 500);
 			}
 			else {
 				OSTimeDlyHMSM(0, 0, total_song_time[TrackNumber], 0);
@@ -278,7 +284,10 @@ void playControlTask(void* data)
 		{
 			OSSemPend(MusicSem,0,&err);
 			isPlaying = TRUE;
-			++TrackNumber;
+			TrackNumber++;
+			if (TrackNumber > 4) {
+				TrackNumber = 1;
+			}
 			display_FND(3);
 			prog = 1;
 			OSSemPost(MusicSem);
@@ -351,10 +360,11 @@ void LedTask (void *data)
 		{
 			
 			if (TrackNumber == 4) {
-				TrackNumber = 1;
+				TrackNumber = 0;
 			}
-			if (First == FALSE)	// 첫 시작에 대한 예외 처리
+			if (First == FALSE) {// 첫 시작에 대한 예외 처리
 				fnd_out[3] = FND_NUMBERS[++TrackNumber];
+			}
 			else {
 				First = FALSE;
 				fnd_out[3] = FND_NUMBERS[TrackNumber];
