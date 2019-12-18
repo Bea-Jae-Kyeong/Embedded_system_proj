@@ -49,7 +49,7 @@ ISR(TIMER1_OVF_vect)
 		PORTB = 0x10;
 	}
 	state = ~state;
-	
+
 	TCNT1H = timer1_key_data_high[kick];
 	TCNT1L = timer1_key_data_low[kick];
 }
@@ -92,7 +92,7 @@ ISR(INT4_vect)
 ISR(INT5_vect)
 {
 	nextButton_Press = TRUE;
-	
+
 	prog=1;
 	_delay_ms(15);
 }
@@ -254,7 +254,7 @@ void MusicTask (void* data)
 			//OSTimeDlyHMSM(0, 0, total_song_length[TrackNumber] /32, 0);
 		}
 
-			
+
 	}
 }
 void playControlTask(void* data)
@@ -284,11 +284,11 @@ void playControlTask(void* data)
 			isPlaying = FALSE;
 			OSSemPost(MusicSem);
 		}
-		
-		
+
+
 		OSTimeDlyHMSM(0,0,0,300);
 	}
-	
+
 
 
 }
@@ -301,7 +301,7 @@ void FNDTask (void* data)
 	char command;
 	while (TRUE) {
 		command = *((char*)OSMboxPend(FNDMbox, 0, &err));	// Mailbox에서 받아옴
-		
+
 		if(command =='P'){
 			display_FND(0);
 			OSQPost(PlayQueue,&command);
@@ -313,7 +313,7 @@ void FNDTask (void* data)
 		}
 		OSTimeDlyHMSM(0, 0, 1, 500);// 1.5초 뒤 트랙 번호 띄워줌
 		display_FND(3);
-		
+
 	}
 }
 
