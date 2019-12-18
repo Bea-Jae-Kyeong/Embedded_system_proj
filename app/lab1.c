@@ -45,8 +45,8 @@ ISR(TIMER1_OVF_vect)
 		PORTB = 0x10;
 		state = ~state;
 	}
-	TCNT1H = timer1_key_data_high[track2_note_key[notes] + 15];
-	TCNT1L = timer1_key_data_low[track2_note_key[notes] + 15];
+	TCNT1H = timer1_key_data_high[track2_note_key[notes] ];
+	TCNT1L = timer1_key_data_low[track2_note_key[notes] ];
 }
 
 
@@ -77,7 +77,7 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 }
 
 
-//재생버튼을 누르는 경우
+//재생버튼(SW1)을 누를 때의 인터럽트
 ISR(INT4_vect)
 {
 	playButton_Press = TRUE;
@@ -88,7 +88,7 @@ ISR(INT4_vect)
 		isPlaying = FALSE;
 	OSTimeDlyHMSM(0, 0, 0, 30);
 }
-//다음곡 버튼을 누르는 경우
+//다음곡 버튼(SW2)을 누를 때의 인터럽트
 ISR(INT5_vect)
 {
 	nextButton_Press = TRUE;
@@ -138,9 +138,9 @@ int main(void)
 	MusicSem = OSSemCreate(1);		//Semaphore 생성
 	PlayMbox = OSMboxCreate(NULL);	//Mailbox 생성
 	FNDMbox = OSMboxCreate(NULL);
-	PlayQueue = OSQCreate(NULL, QUEUE_SIZE);
-	ProgressFlag = OSFlagCreate((OS_FLAGS)0x00, &err);
-
+	PlayQueue = OSQCreate(NULL, QUEUE_SIZE);		//Message Queue 생성
+	ProgressFlag = OSFlagCreate((OS_FLAGS)0x00, &err);	//Event flag 생성
+	//4개의 Task
 	OSTaskCreate(MainTask, (void*)0, (void *)&TaskStk[0][TASK_STK_SIZE - 1], 0);
 	OSTaskCreate(MusicTask, (void*)0, (void *)&TaskStk[1][TASK_STK_SIZE - 1], 1);
 	OSTaskCreate(LedTask, (void *)0, (void *)&TaskStk[2][TASK_STK_SIZE - 1], 2);
