@@ -270,8 +270,7 @@ void playControlTask(void* data)
 		{
 			OSSemPend(MusicSem,0,&err);
 			isPlaying = TRUE;
-			notes = total_song_notes[TrackNumber];
-			TrackNumber++;
+			notes = total_song_notes[++TrackNumber];
 			prog = 1;
 			OSSemPost(MusicSem);
 		}
