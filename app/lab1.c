@@ -47,7 +47,7 @@ ISR(TIMER1_OVF_vect)
 		PORTB = 0x10;
 	}
 	state = ~state;
-	kick = track2_note_key[notes];
+	kick = track_note_key[notes];
 	TCNT1H = timer1_key_data_high[kick];
 	TCNT1L = timer1_key_data_low[kick];
 }
@@ -68,7 +68,7 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 		beat = 0;
 		if(isPlaying)
 		note++;
-		if(track2_note_size[notes] == note)
+		if(track_note_size[notes] == note)
 		{
 			note = 0;
 			notes++;
