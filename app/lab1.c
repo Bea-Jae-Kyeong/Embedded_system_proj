@@ -95,10 +95,11 @@ ISR(INT5_vect)
 	Next = TRUE;
 	_delay_ms(15);
 	if (TrackNumber >= 4) {
-		_delay_ms(300);
 		First = TRUE;
 		TrackNumber = 1;
 		notes = total_song_notes[0];
+
+		_delay_ms(300);
 	}
 	else {
 		notes = total_song_notes[TrackNumber];
