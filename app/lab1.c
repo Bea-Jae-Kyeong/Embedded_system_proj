@@ -64,7 +64,7 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 		digit = 0;
 	}
 	beat++;
-	if(beat == 65) //62.5ms ->16분음마다 돌아감
+	if(beat == 55) //62.5ms ->16분음마다 돌아감
 	{
 		beat = 0;
 		if(isPlaying)
@@ -91,7 +91,7 @@ ISR(INT4_vect)
 ISR(INT5_vect)
 {
 	nextButton_Press = TRUE;
-	isPlaying = TRUE;
+	
 	prog=1;
 	_delay_ms(15);
 }
@@ -220,7 +220,7 @@ void MainTask (void* data)
 		{
 			nextButton_Press = FALSE;
 			ping = 'N';
-			OSMboxPost(FNDMbox, &ping);
+			OSQPost(PlayQueue, &ping);
 		}
 		OSTimeDlyHMSM(0, 0, 0, 100);
 	}
@@ -252,6 +252,24 @@ void MusicTask (void* data)
 			OSTimeDlyHMSM(0, 0, total_song_length[TrackNumber] /32, 0);
 	}
 }
+void playControlTask(void* data)
+{
+	INT8U err;
+	data = data;
+	char command;
+	while(TRUE){
+		command = *(char*)OSQPend(PlayQueue,0,&err);
+		if(command == 'N')
+		{
+			isPlaying = TRUE;
+		}
+		
+
+	}
+	
+
+
+}
 
 //FND 출력 태스크
 void FNDTask (void* data)
@@ -279,9 +297,8 @@ void FNDTask (void* data)
 		}
 		OSTimeDlyHMSM(0, 0, 0, 300);
 	}
-
-
 }
+
 
 // LED로 진행도 표시해주는 태스크
 void LedTask (void *data)
