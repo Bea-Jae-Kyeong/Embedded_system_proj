@@ -91,20 +91,20 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 			if(isPlaying == TRUE)
 				notes++;
 		}
-		
-		
+
+
 	}
 	TCNT2 = 125;
 }
 
 
-//재생버튼을 누르는 경우
+//재생버튼(SW1)을 누를 때의 인터럽트
 ISR(INT4_vect)
 {
 	playButton_Press = TRUE;
 	_delay_ms(15);
 }
-//다음곡 버튼을 누르는 경우
+//다음곡 버튼(SW2)을 누를 때의 인터럽트
 ISR(INT5_vect)
 {
 	nextButton_Press = TRUE;
@@ -127,7 +127,7 @@ int main (void)
 
   	OS_ENTER_CRITICAL();
   	TCCR0 = 0x07;  //0b00000111 => 1024분주
-  	
+
   	TCNT0 = 256 - (CPU_CLOCK_HZ/OS_TICKS_PER_SEC/ 1024);  //timer0 is used on uCOS-II
 	DDRA = 0xff; //LED 출력 설정
   	DDRB = 0x10; //버저 출력(PB4) 설정
@@ -155,9 +155,9 @@ int main (void)
 	MusicSem = OSSemCreate(1);		//Semaphore 생성
 	PlayMbox = OSMboxCreate(NULL);	//Mailbox 생성
 	FNDMbox = OSMboxCreate(NULL);
-	PlayQueue = OSQCreate(NULL, QUEUE_SIZE);
-	ProgressFlag = OSFlagCreate((OS_FLAGS)0x00, &err);
-
+	PlayQueue = OSQCreate(NULL, QUEUE_SIZE);		//Message Queue 생성
+	ProgressFlag = OSFlagCreate((OS_FLAGS)0x00, &err);	//Event flag 생성
+	//4개의 Task
 	OSTaskCreate(MainTask, (void*)0, (void *)&TaskStk[0][TASK_STK_SIZE - 1], 0);
 	OSTaskCreate(MusicTask, (void*)0, (void *)&TaskStk[1][TASK_STK_SIZE - 1], 1);
   	OSTaskCreate(LedTask, (void *)0, (void *)&TaskStk[2][TASK_STK_SIZE - 1], 2);
@@ -220,7 +220,7 @@ void MainTask (void* data)
 				OSSemPost(MusicSem);
 				ping = 'S';	//stop ping
 			}
-				
+
 			else
 			{
 				OSSemPend(MusicSem,0,&err);
@@ -228,12 +228,12 @@ void MainTask (void* data)
 				OSSemPost(MusicSem);
 				ping = 'P';//play ping
 			}
-				
+
 
 			OSMboxPost(FNDMbox, &ping);
 			//OSTimeDlyHMSM(0,0,1,500);
 		}
-		else if (nextButton_Press) 
+		else if (nextButton_Press)
 		{
 			nextButton_Press = FALSE;
 			ping = 'N';
