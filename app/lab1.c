@@ -21,17 +21,15 @@ volatile INT8U digit = 0;
 volatile INT8U beat = 0;
 volatile INT8U state;
 volatile INT8U note=0;
-volatile INT8U toneH,toneL;
 volatile INT16U notes=0;
-volatile int notenum = 0;
 volatile INT8U playButton_Press;
 volatile INT8U nextButton_Press;
 volatile INT8U isPlaying;
 volatile INT8U TrackNumber = 1;
 volatile INT8U fnd_out[4] = { 0x54, 0xDC, 0x3f, 0x06 };
 volatile INT8U prog=0;
-volatile INT8U playButtonCount = 0;
 volatile INT8U First;
+volatile INT8U Next;
 INT16U kick;
 
 
@@ -94,7 +92,8 @@ ISR(INT5_vect)
 	nextButton_Press = TRUE;
 	isPlaying = TRUE;
 	prog=1;
-	_delay_ms(30);
+	Next = TRUE;
+	_delay_ms(15);
 	notes = total_song_notes[TrackNumber];
 }
 
@@ -146,8 +145,8 @@ int main (void)
 	OSTaskCreate(MainTask, (void*)0, (void *)&TaskStk[0][TASK_STK_SIZE - 1], 0);
 	OSTaskCreate(MusicTask, (void*)0, (void *)&TaskStk[1][TASK_STK_SIZE - 1], 1);
   	OSTaskCreate(LedTask, (void *)0, (void *)&TaskStk[2][TASK_STK_SIZE - 1], 2);
-	OSTaskCreate(FNDTask, (void*)0, (void *)&TaskStk[3][TASK_STK_SIZE - 1], 4);
-	OSTaskCreate(playControlTask, (void*)0, (void *)&TaskStk[4][TASK_STK_SIZE - 1], 3);
+	OSTaskCreate(FNDTask, (void*)0, (void *)&TaskStk[3][TASK_STK_SIZE - 1], 3);
+	OSTaskCreate(playControlTask, (void*)0, (void *)&TaskStk[4][TASK_STK_SIZE - 1], 4);
 
   	OSStart();
 
@@ -250,8 +249,13 @@ void MusicTask (void* data)
 			if (prog == 1) {
 				progress = 0;
 			}
-			
-			OSTimeDlyHMSM(0, 0, total_song_time[TrackNumber], 0);
+			if (Next == TRUE) {
+				Next = FALSE;
+				OSTimeDlyHMSM(0, 0, 1, 0);
+			}
+			else {
+				OSTimeDlyHMSM(0, 0, total_song_time[TrackNumber], 0);
+			}
 		}
 		else
 		{
