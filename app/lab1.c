@@ -245,10 +245,10 @@ void MusicTask (void* data)
 			if (prog == 1) {
 				progress = 0;
 			}
-			OSTimeDlyHMSM(0, 0, 1, 0);
+			OSTimeDlyHMSM(0, 0, total_song_length[TrackNumber]/32, 0);
 		}
 		else
-			OSTimeDlyHMSM(0, 0, 1, 0);
+			OSTimeDlyHMSM(0, 0, total_song_length[TrackNumber] /32, 0);
 	}
 }
 
