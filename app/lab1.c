@@ -21,7 +21,7 @@ volatile INT8U digit = 0;
 volatile INT8U beat = 0;
 volatile INT8U state;
 volatile INT8U note=0;
-volatile INT16U notes=0;
+volatile INT16U notes=1;
 volatile INT8U playButton_Press;
 volatile INT8U nextButton_Press;
 volatile INT8U isPlaying;
@@ -288,9 +288,6 @@ void playControlTask(void* data)
 			OSSemPend(MusicSem,0,&err);
 			isPlaying = TRUE;
 			TrackNumber++;
-			if (TrackNumber > 4) {
-				TrackNumber = 1;
-			}
 			display_FND(3);
 			prog = 1;
 			OSSemPost(MusicSem);
