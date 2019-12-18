@@ -16,7 +16,7 @@ volatile INT8U beat = 0;
 volatile INT8U state;
 volatile INT8U note=0;
 volatile INT8U toneH,toneL;
-volatile INT8U notes=0;
+volatile INT16U notes=0;
 volatile int notenum = 0;
 volatile INT8U playButton_Press;
 volatile INT8U nextButton_Press;
@@ -26,7 +26,7 @@ volatile INT8U fnd_out[4] = { 0x54, 0xDC, 0x3f, 0x06 };
 volatile INT8U prog=0;
 volatile INT8U playButtonCount = 0;
 volatile INT8U First;
-INT8U kick;
+INT16U kick;
 OS_STK          TaskStk[N_TASK][TASK_STK_SIZE];
 OS_EVENT* MusicSem;
 OS_EVENT* FNDMbox;
@@ -40,6 +40,7 @@ OS_FLAG_GRP* ProgressFlag;//진행도 플래그
 //소리 재생용 인터럽트
 ISR(TIMER1_OVF_vect)
 {
+	kick = track_note_key[notes];
 	if(state == 0xff||!isPlaying){
 		PORTB = 0x00;
 	}
@@ -47,7 +48,7 @@ ISR(TIMER1_OVF_vect)
 		PORTB = 0x10;
 	}
 	state = ~state;
-	kick = track_note_key[notes];
+	
 	TCNT1H = timer1_key_data_high[kick];
 	TCNT1L = timer1_key_data_low[kick];
 }
@@ -63,7 +64,7 @@ ISR(TIMER2_OVF_vect) //0.0005초마다 인터럽트 발생
 		digit = 0;
 	}
 	beat++;
-	if(beat == 125) //62.5ms ->16분음마다 돌아감
+	if(beat == 55) //62.5ms ->16분음마다 돌아감
 	{
 		beat = 0;
 		if(isPlaying)
