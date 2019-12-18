@@ -92,8 +92,9 @@ ISR(INT4_vect)
 ISR(INT5_vect)
 {
 	nextButton_Press = TRUE;
-
+	isPlaying = TRUE;
 	prog=1;
+	notes = total_song_notes[TrackNumber];
 	_delay_ms(15);
 }
 
@@ -223,7 +224,7 @@ void MainTask (void* data)
 			ping = 'N';
 			OSQPost(PlayQueue, &ping);
 		}
-		OSTimeDlyHMSM(0, 0, 0, 100);
+		OSTimeDlyHMSM(0, 0, 0, 500);
 	}
 
 }
@@ -270,11 +271,11 @@ void playControlTask(void* data)
 		{
 			OSSemPend(MusicSem,0,&err);
 			isPlaying = TRUE;
-			notes = total_song_notes[++TrackNumber];
+			TrackNumber++;
 			prog = 1;
 			OSSemPost(MusicSem);
 		}
-		else if(command =='P')
+		if(command =='P')
 		{
 			OSSemPend(MusicSem,0,&err);
 			isPlaying = TRUE;

@@ -189,5 +189,5 @@ INT16U total_song_time[]  = {
 };
 
 INT16U total_song_notes[] = {
-	0,61,116,269,504
+	0,62,116,269,504
 };
